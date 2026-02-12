@@ -21,19 +21,21 @@ import {
 
 const registerSchema = z.object({
   email: z.email({ error: "Email must be valid." }),
-  unit: z.string().min(1, { error: "Unit is required." }),
   password: z.string().min(1, { error: "Password is required." }),
+  department: z.string().min(1, { error: "Department is required." }),
+  role: z.string().min(1, { error: "Role is required." }),
 });
 type RegisterSchema = z.infer<typeof registerSchema>;
 
 export function RegisterForm() {
-  const form = useForm({
+  const form = useForm<RegisterSchema>({
     ...defaultFormConfig,
     resolver: zodResolver(registerSchema),
     defaultValues: {
       email: "",
-      unit: "",
+      department: "",
       password: "",
+      role: "",
     },
   });
 
@@ -61,22 +63,25 @@ export function RegisterForm() {
           )}
         />
         <Controller
-          name="unit"
+          name="department"
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="form-unit">Unit</FieldLabel>
+              <FieldLabel htmlFor="form-department">Department</FieldLabel>
               <Select
                 name={field.name}
                 value={field.value}
                 onValueChange={field.onChange}
               >
-                <SelectTrigger id="form-unit" aria-invalid={fieldState.invalid}>
-                  <SelectValue placeholder="Select a unit" />
+                <SelectTrigger
+                  id="form-department"
+                  aria-invalid={fieldState.invalid}
+                >
+                  <SelectValue placeholder="Select a department" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectLabel>Unit</SelectLabel>
+                    <SelectLabel>Department</SelectLabel>
                     <SelectItem value="humanResources">
                       Human Resources
                     </SelectItem>
@@ -84,6 +89,32 @@ export function RegisterForm() {
                     <SelectItem value="businessIntelligence">
                       Business Intelligence
                     </SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
+        <Controller
+          name="role"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabel htmlFor="form-role">Role</FieldLabel>
+              <Select
+                name={field.name}
+                value={field.value}
+                onValueChange={field.onChange}
+              >
+                <SelectTrigger id="form-role" aria-invalid={fieldState.invalid}>
+                  <SelectValue placeholder="Select a role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Role</SelectLabel>
+                    <SelectItem value="standard">Standard</SelectItem>
+                    <SelectItem value="supervisor">Supervisor</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>

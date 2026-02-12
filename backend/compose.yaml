@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres
+    container_name: co2-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+  pgAdmin:
+    image: dpage/pgadmin4
+    container_name: pg-admin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: pgadmin@pgadmin.com
+      PGADMIN_DEFAULT_PASSWORD: AdminSuperSecretUser
+    ports:
+      - "5434:80"
+    depends_on:
+      - postgres

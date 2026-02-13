@@ -4,9 +4,10 @@ export const usersTable = pgTable("users", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   email: varchar().notNull().unique(),
   password: varchar().notNull(),
-  department: varchar().references(() => departments.name),
-  role: varchar().references(() => roles.name),
-  createdAt: timestamp().defaultNow(),
+  salt: varchar().notNull(),
+  department: varchar().notNull().references(() => departments.name),
+  role: varchar().notNull().references(() => roles.name),
+  createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
 });
 
 export const departments = pgTable("departments", {

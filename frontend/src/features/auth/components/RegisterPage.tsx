@@ -1,11 +1,9 @@
 import { Link } from "react-router";
 import { RegisterForm } from "@/features/auth/components/RegisterForm";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -27,11 +25,6 @@ export function RegisterPage() {
             </Link>
           </p>
         </CardContent>
-        <CardFooter>
-          <Button type="submit" form="register-form" className="w-full">
-            Register
-          </Button>
-        </CardFooter>
       </Card>
     </div>
   );

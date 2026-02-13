@@ -1,8 +1,14 @@
-import * as z from "zod";
 import { useForm, Controller, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { defaultFormConfig } from "@/config/formConfig";
+import { useRegister } from "@/features/auth/api/mutations";
+import {
+  registerFormSchema,
+  type RegisterFormSchema,
+} from "@/features/auth/types";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Field,
   FieldError,
@@ -19,32 +25,26 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const registerSchema = z.object({
-  email: z.email({ error: "Email must be valid." }),
-  password: z.string().min(1, { error: "Password is required." }),
-  department: z.string().min(1, { error: "Department is required." }),
-  role: z.string().min(1, { error: "Role is required." }),
-});
-type RegisterSchema = z.infer<typeof registerSchema>;
-
 export function RegisterForm() {
-  const form = useForm<RegisterSchema>({
+  const registerMutation = useRegister();
+
+  const form = useForm({
     ...defaultFormConfig,
-    resolver: zodResolver(registerSchema),
+    resolver: zodResolver(registerFormSchema),
     defaultValues: {
       email: "",
-      department: "",
       password: "",
-      role: "",
+      role: "standard" as const,
+      department: "humanResources" as const,
     },
   });
 
-  const onSubmit: SubmitHandler<RegisterSchema> = (data) => {
-    console.log(data);
+  const onSubmit: SubmitHandler<RegisterFormSchema> = (data) => {
+    registerMutation.mutate(data);
   };
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} id="register-form">
+    <form onSubmit={form.handleSubmit(onSubmit)}>
       <FieldGroup>
         <Controller
           name="email"
@@ -139,6 +139,14 @@ export function RegisterForm() {
             </Field>
           )}
         />
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={registerMutation.isPending}
+        >
+          Register
+          {registerMutation.isPending && <Spinner />}
+        </Button>
       </FieldGroup>
     </form>
   );

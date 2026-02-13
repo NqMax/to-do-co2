@@ -1,8 +1,11 @@
-import * as z from "zod";
 import { useForm, Controller, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { defaultFormConfig } from "@/config/formConfig";
+import { useLogin } from "@/features/auth/api/mutations";
+import { loginSchema, type LoginSchema } from "@/features/auth/types";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Field,
   FieldError,
@@ -10,13 +13,9 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 
-const loginSchema = z.object({
-  email: z.email({ error: "Email must be valid." }),
-  password: z.string().min(1, { error: "Password is required." }),
-});
-type LoginSchema = z.infer<typeof loginSchema>;
-
 export function LoginForm() {
+  const loginMutation = useLogin();
+
   const form = useForm({
     ...defaultFormConfig,
     resolver: zodResolver(loginSchema),
@@ -27,11 +26,11 @@ export function LoginForm() {
   });
 
   const onSubmit: SubmitHandler<LoginSchema> = (data) => {
-    console.log(data);
+    loginMutation.mutate(data);
   };
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} id="login-form">
+    <form onSubmit={form.handleSubmit(onSubmit)}>
       <FieldGroup>
         <Controller
           name="email"
@@ -66,6 +65,14 @@ export function LoginForm() {
             </Field>
           )}
         />
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={loginMutation.isPending}
+        >
+          Login
+          {loginMutation.isPending && <Spinner />}
+        </Button>
       </FieldGroup>
     </form>
   );

@@ -1,11 +1,9 @@
 import { Link } from "react-router";
 import { LoginForm } from "@/features/auth/components/LoginForm";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -27,11 +25,6 @@ export function LoginPage() {
             </Link>
           </p>
         </CardContent>
-        <CardFooter>
-          <Button type="submit" form="login-form" className="w-full">
-            Login
-          </Button>
-        </CardFooter>
       </Card>
     </div>
   );

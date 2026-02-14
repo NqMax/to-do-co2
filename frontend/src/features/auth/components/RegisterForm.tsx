@@ -1,4 +1,5 @@
 import { useForm, Controller, type SubmitHandler } from "react-hook-form";
+import { useNavigate } from "react-router";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { defaultFormConfig } from "@/config/formConfig";
 import { useRegister } from "@/features/auth/api/mutations";
@@ -27,7 +28,8 @@ import {
 
 export function RegisterForm() {
   const registerMutation = useRegister();
-
+  const navigate = useNavigate();
+  
   const form = useForm({
     ...defaultFormConfig,
     resolver: zodResolver(registerFormSchema),
@@ -40,7 +42,9 @@ export function RegisterForm() {
   });
 
   const onSubmit: SubmitHandler<RegisterFormSchema> = (data) => {
-    registerMutation.mutate(data);
+    registerMutation.mutate(data, {
+      onSuccess: () => navigate("/"),
+    });
   };
 
   return (

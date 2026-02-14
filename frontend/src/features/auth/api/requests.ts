@@ -6,6 +6,18 @@ import type {
 } from "@/features/auth/types";
 import type { AxiosResponse } from "axios";
 
+export async function deleteSession() {
+  const response = await client.post("/auth/logout");
+  return response.data;
+}
+
+export async function validateSession() {
+  const response = await client.get<AuthResponse, AxiosResponse<AuthResponse>>(
+    "/auth/me",
+  );
+  return response.data;
+}
+
 export async function registerUser(data: CreateUserDto) {
   const response = await client.post<
     AuthResponse,

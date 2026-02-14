@@ -1,4 +1,5 @@
 import { useForm, Controller, type SubmitHandler } from "react-hook-form";
+import { useNavigate } from "react-router";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { defaultFormConfig } from "@/config/formConfig";
 import { useLogin } from "@/features/auth/api/mutations";
@@ -15,6 +16,7 @@ import {
 
 export function LoginForm() {
   const loginMutation = useLogin();
+  const navigate = useNavigate();
 
   const form = useForm({
     ...defaultFormConfig,
@@ -26,7 +28,9 @@ export function LoginForm() {
   });
 
   const onSubmit: SubmitHandler<LoginSchema> = (data) => {
-    loginMutation.mutate(data);
+    loginMutation.mutate(data, {
+      onSuccess: () => navigate("/"),
+    });
   };
 
   return (

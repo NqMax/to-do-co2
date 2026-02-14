@@ -23,5 +23,5 @@ export type AuthResponse = {
   email: string;
   department: CreateUserDto["department"];
   role: CreateUserDto["role"];
-  token: string;
+  createdAt: string;
 };

@@ -3,8 +3,9 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db/db";
 import { usersTable } from "@/db/schema";
 import { createSession, deleteSession } from "@/lib/session";
+import { constructError, errorCodes } from "@/lib/errors";
 import { loginDto, type LoginDto } from "@/types/auth";
-import type { Request, Response } from "express";
+import type { Request, Response, NextFunction } from "express";
 
 export async function endSession(_: Request, res: Response) {
   return deleteSession(res);
@@ -30,6 +31,7 @@ export async function validateSession(req: Request, res: Response) {
 export async function validateUser(
   req: Request<{}, {}, LoginDto>,
   res: Response,
+  next: NextFunction,
 ) {
   const user = req.body;
   loginDto.parse(user);
@@ -40,26 +42,44 @@ export async function validateUser(
     .where(eq(usersTable.email, user.email));
 
   if (!userResult) {
-    return res.status(401).json({ message: "Invalid email or password." });
+    return res
+      .status(401)
+      .json(
+        constructError(
+          errorCodes.invalidCredentials,
+          "Invalid email or password.",
+        ),
+      );
   }
 
   scrypt(user.password, userResult.salt, 64, async (err, derivedKey) => {
-    if (err) throw err;
+    if (err) return next(err);
 
-    const derivedKeyString = derivedKey.toString("hex");
+    try {
+      const derivedKeyString = derivedKey.toString("hex");
 
-    if (derivedKeyString !== userResult.password) {
-      return res.status(401).json({ message: "Invalid email or password." });
+      if (derivedKeyString !== userResult.password) {
+        return res
+          .status(401)
+          .json(
+            constructError(
+              errorCodes.invalidCredentials,
+              "Invalid email or password.",
+            ),
+          );
+      }
+
+      await createSession(res, {
+        id: userResult.id,
+        department: userResult.department,
+        role: userResult.role,
+      });
+
+      const { password, salt, ...userWithoutPassword } = userResult;
+
+      return res.json({ ...userWithoutPassword });
+    } catch (err) {
+      return next(err);
     }
-
-    await createSession(res, {
-      id: userResult.id,
-      department: userResult.department,
-      role: userResult.role,
-    });
-
-    const { password, salt, ...userWithoutPassword } = userResult;
-
-    return res.json({ ...userWithoutPassword });
   });
 }

@@ -10,6 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Spinner } from "@/components/ui/spinner";
 
 export function UserInfo() {
   const navigate = useNavigate();
@@ -41,9 +42,15 @@ export function UserInfo() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="" align="start">
-        <DropdownMenuItem variant="destructive" onClick={handleLogout}>
+        <DropdownMenuItem
+          variant="destructive"
+          onClick={handleLogout}
+          disabled={logoutMutation.isPending}
+          onSelect={(event) => event.preventDefault()}
+        >
           <LogOut />
           Logout
+          {logoutMutation.isPending && <Spinner />}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -5,14 +5,6 @@ import { createUserDto, type CreateUserDto } from "@/types/user";
 import type { Request, Response } from "express";
 import { createSession } from "@/lib/session";
 
-interface GetUserParams {
-  userId: string;
-}
-
-export function getUser(req: Request<GetUserParams>, res: Response) {
-  res.send("User route");
-}
-
 export function createUser(req: Request<{}, {}, CreateUserDto>, res: Response) {
   const user = req.body;
   createUserDto.parse(user);
@@ -42,6 +34,6 @@ export function createUser(req: Request<{}, {}, CreateUserDto>, res: Response) {
       role: userResult.role,
     });
 
-    res.status(201).json(userResult);
+    return res.status(201).json(userResult);
   });
 }

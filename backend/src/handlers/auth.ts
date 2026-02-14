@@ -6,6 +6,23 @@ import { createSession } from "@/lib/session";
 import { loginDto, type LoginDto } from "@/types/auth";
 import type { Request, Response } from "express";
 
+export async function validateSession(req: Request, res: Response) {
+  const auth = req.auth;
+
+  const [userResult] = await db
+    .select({
+      id: usersTable.id,
+      email: usersTable.email,
+      department: usersTable.department,
+      role: usersTable.role,
+      createdAt: usersTable.createdAt,
+    })
+    .from(usersTable)
+    .where(eq(usersTable.id, auth.id));
+
+  res.json(userResult);
+}
+
 export async function validateUser(
   req: Request<{}, {}, LoginDto>,
   res: Response,
@@ -39,6 +56,6 @@ export async function validateUser(
 
     const { password, salt, ...userWithoutPassword } = userResult;
 
-    res.json({ ...userWithoutPassword });
+    return res.json({ ...userWithoutPassword });
   });
 }

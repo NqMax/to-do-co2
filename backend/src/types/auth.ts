@@ -5,3 +5,9 @@ export const loginDto = z.object({
   password: z.string().min(1, { error: "Password is required." }),
 });
 export type LoginDto = z.infer<typeof loginDto>;
+
+export type JwtPayload = {
+  id: number;
+  department: string;
+  role: string;
+};

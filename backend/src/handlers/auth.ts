@@ -2,9 +2,13 @@ import { scrypt } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { db } from "@/db/db";
 import { usersTable } from "@/db/schema";
-import { createSession } from "@/lib/session";
+import { createSession, deleteSession } from "@/lib/session";
 import { loginDto, type LoginDto } from "@/types/auth";
 import type { Request, Response } from "express";
+
+export async function endSession(_: Request, res: Response) {
+  return deleteSession(res);
+}
 
 export async function validateSession(req: Request, res: Response) {
   const auth = req.auth;

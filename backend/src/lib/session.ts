@@ -1,5 +1,15 @@
 import { signJwt } from "@/lib/jwt";
-import type { Response } from "express";
+import type { Response, CookieOptions } from "express";
+
+const cookieOptions: CookieOptions = {
+  httpOnly: true,
+  secure: true,
+  sameSite: "none",
+};
+
+export async function deleteSession(res: Response) {
+  res.clearCookie("token", cookieOptions).send();
+}
 
 export async function createSession(
   res: Response,
@@ -7,9 +17,5 @@ export async function createSession(
 ) {
   const jwt = await signJwt(payload);
 
-  res.cookie("token", jwt, {
-    httpOnly: true,
-    secure: true,
-    sameSite: process.env.NODE_ENV === "production" ? "lax" : "none",
-  });
+  res.cookie("token", jwt, cookieOptions);
 }

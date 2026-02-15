@@ -1,7 +1,7 @@
 import { scrypt } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { db } from "@/db/db";
-import { usersTable } from "@/db/schema";
+import { departmentsTable, rolesTable, usersTable } from "@/db/schema";
 import { createSession, deleteSession } from "@/lib/session";
 import { constructError, errorCodes } from "@/lib/errors";
 import { loginDto, type LoginDto } from "@/types/auth";
@@ -18,11 +18,13 @@ export async function validateSession(req: Request, res: Response) {
     .select({
       id: usersTable.id,
       email: usersTable.email,
-      department: usersTable.department,
-      role: usersTable.role,
+      department: departmentsTable.name,
+      role: rolesTable.name,
       createdAt: usersTable.createdAt,
     })
     .from(usersTable)
+    .innerJoin(departmentsTable, eq(usersTable.department, departmentsTable.id))
+    .innerJoin(rolesTable, eq(usersTable.role, rolesTable.id))
     .where(eq(usersTable.id, auth.id));
 
   res.json(userResult);
@@ -37,8 +39,17 @@ export async function validateUser(
   loginDto.parse(user);
 
   const [userResult] = await db
-    .select()
+    .select({
+      id: usersTable.id,
+      email: usersTable.email,
+      department: departmentsTable.name,
+      role: rolesTable.name,
+      salt: usersTable.salt,
+      password: usersTable.password,
+    })
     .from(usersTable)
+    .innerJoin(departmentsTable, eq(usersTable.department, departmentsTable.id))
+    .innerJoin(rolesTable, eq(usersTable.role, rolesTable.id))
     .where(eq(usersTable.email, user.email));
 
   if (!userResult) {

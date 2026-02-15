@@ -1,6 +1,8 @@
 export const errorCodes = {
   unauthorized: "UNAUTHORIZED",
   invalidCredentials: "INVALID_CREDENTIALS",
+  invalidDepartment: "INVALID_DEPARTMENT",
+  invalidRole: "INVALID_ROLE",
   internalServerError: "INTERNAL_SERVER_ERROR",
 } as const;
 

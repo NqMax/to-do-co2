@@ -36,7 +36,7 @@ export function UserInfo() {
           <div className="flex flex-col justify-center text-start">
             <p className="text-sm font-medium">{user.email}</p>
             <p className="text-xs font-normal">
-              {departmentLabels[user.department]} - {roleLabels[user.role]}
+              {departmentLabels[user.department]} • {roleLabels[user.role]}
             </p>
           </div>
         </Button>

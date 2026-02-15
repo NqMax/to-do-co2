@@ -13,8 +13,8 @@ export function RegisterPage() {
     <div className="flex min-h-screen items-center justify-center">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle>Register</CardTitle>
-          <CardDescription>Create a new account.</CardDescription>
+          <CardTitle>Create an account</CardTitle>
+          <CardDescription>Enter your information below to create your account.</CardDescription>
         </CardHeader>
         <CardContent>
           <RegisterForm />

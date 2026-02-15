@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import {
   Field,
+  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
@@ -29,19 +30,27 @@ import {
 export function RegisterForm() {
   const registerMutation = useRegister();
   const navigate = useNavigate();
-  
+
   const form = useForm({
     ...defaultFormConfig,
     resolver: zodResolver(registerFormSchema),
     defaultValues: {
       email: "",
       password: "",
+      confirmPassword: "",
       role: "standard" as const,
       department: "humanResources" as const,
     },
   });
 
   const onSubmit: SubmitHandler<RegisterFormSchema> = (data) => {
+    if (data.password !== data.confirmPassword) {
+      return form.setError("root", {
+        type: "manual",
+        message: "Passwords do not match.",
+      });
+    }
+
     registerMutation.mutate(data, {
       onSuccess: () => navigate("/"),
     });
@@ -126,31 +135,66 @@ export function RegisterForm() {
             </Field>
           )}
         />
-        <Controller
-          name="password"
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="form-password">Password</FieldLabel>
-              <Input
-                {...field}
-                id="form-password"
-                type="password"
-                aria-invalid={fieldState.invalid}
-                placeholder="••••••••"
-              />
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-            </Field>
+        <Field>
+          <Field className="grid grid-cols-2 gap-4">
+            <Controller
+              name="password"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="form-password">Password</FieldLabel>
+                  <Input
+                    {...field}
+                    id="form-password"
+                    type="password"
+                    aria-invalid={fieldState.invalid}
+                    placeholder="••••••••"
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+            <Controller
+              name="confirmPassword"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="form-confirm-password">
+                    Confirm Password
+                  </FieldLabel>
+                  <Input
+                    {...field}
+                    id="form-confirm-password"
+                    type="password"
+                    aria-invalid={fieldState.invalid}
+                    placeholder="••••••••"
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+          </Field>
+          <FieldDescription>
+            Must be at least 8 characters long.
+          </FieldDescription>
+          {form.formState.errors.root?.message && (
+            <FieldError errors={[form.formState.errors.root]} />
           )}
-        />
-        <Button
-          type="submit"
-          className="w-full"
-          disabled={registerMutation.isPending}
-        >
-          Register
-          {registerMutation.isPending && <Spinner />}
-        </Button>
+        </Field>
+        <Field>
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={registerMutation.isPending}
+          >
+            Create Account
+            {registerMutation.isPending && <Spinner />}
+          </Button>
+        </Field>
       </FieldGroup>
     </form>
   );

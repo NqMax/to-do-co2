@@ -13,8 +13,8 @@ export function LoginPage() {
     <div className="flex min-h-screen items-center justify-center">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle>Login</CardTitle>
-          <CardDescription>Enter your credentials to login.</CardDescription>
+          <CardTitle>Login to your account</CardTitle>
+          <CardDescription>Enter your credentials below to login to your account.</CardDescription>
         </CardHeader>
         <CardContent>
           <LoginForm />

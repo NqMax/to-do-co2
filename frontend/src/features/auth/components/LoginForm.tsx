@@ -69,14 +69,16 @@ export function LoginForm() {
             </Field>
           )}
         />
-        <Button
-          type="submit"
-          className="w-full"
-          disabled={loginMutation.isPending}
-        >
-          Login
-          {loginMutation.isPending && <Spinner />}
-        </Button>
+        <Field>
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={loginMutation.isPending}
+          >
+            Login
+            {loginMutation.isPending && <Spinner />}
+          </Button>
+        </Field>
       </FieldGroup>
     </form>
   );

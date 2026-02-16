@@ -31,7 +31,7 @@ export const tasksTable = pgTable("tasks", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   title: varchar().notNull(),
   description: varchar().notNull(),
-  status: statusEnum().notNull().default("pending"),
+  status: statusEnum().default("pending").notNull(),
   department: integer()
     .notNull()
     .references(() => departmentsTable.id),

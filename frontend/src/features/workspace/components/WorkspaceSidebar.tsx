@@ -40,8 +40,8 @@ export function WorkspaceSidebar() {
         <SidebarGroup>
           <SidebarGroupLabel>Platform</SidebarGroupLabel>
           <SidebarMenu>
-            {sidebarItems.map((item) => (
-              <SidebarMenuButton asChild tooltip={item.title}>
+            {sidebarItems.map((item, index) => (
+              <SidebarMenuButton asChild key={index} tooltip={item.title}>
                 <NavLink to={item.href} className="[&.active]:font-bold">
                   {item.icon && <item.icon />}
                   <span>{item.title}</span>

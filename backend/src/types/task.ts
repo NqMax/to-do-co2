@@ -48,7 +48,7 @@ export const taskPrioritySchema = z.enum(["low", "medium", "high"]);
 export const createTaskDto = z.object({
   title: z.string().trim().min(1, { error: "Title is required." }),
   description: z.string().trim().min(1, { error: "Description is required." }),
-  status: taskStatusSchema,
+  status: taskStatusSchema.optional(),
   priority: taskPrioritySchema,
 });
 

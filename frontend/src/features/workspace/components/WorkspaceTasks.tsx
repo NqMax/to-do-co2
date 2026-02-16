@@ -35,11 +35,17 @@ export function WorkspaceTasks() {
       </h1>
       <TaskToolbar isRefetching={result.isRefetching} />
       <ul className="flex flex-col gap-4 overflow-y-auto pr-2">
-        {result.data.data.map((task) => (
-          <li key={task.id}>
-            <TaskCard task={task} />
+        {result.data.data.length === 0 ? (
+          <li className=" py-4 text-center">
+            No tasks available under current filters.
           </li>
-        ))}
+        ) : (
+          result.data.data.map((task) => (
+            <li key={task.id}>
+              <TaskCard task={task} />
+            </li>
+          ))
+        )}
       </ul>
       <ResourcePagination pagination={result.data.meta.pagination} />
     </>

@@ -8,7 +8,6 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogClose,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
@@ -41,13 +40,10 @@ export function DeleteTaskDialog({ task }: { task: Task }) {
         <DialogHeader>
           <DialogTitle>Are you absolutely sure?</DialogTitle>
           <DialogDescription>
-            This action cannot be undone and the task will be deleted.
+            This action could be permament.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
-          </DialogClose>
           <Button
             variant="destructive"
             onClick={handleDelete}

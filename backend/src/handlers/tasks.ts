@@ -6,12 +6,10 @@ import { constructError, errorCodes } from "@/lib/errors";
 import {
   createTaskDto,
   getTasksQueryDto,
-  taskRevisionIdParamDto,
   taskIdParamDto,
   updateTaskDto,
   type CreateTaskDto,
   type GetTasksQueryDto,
-  type TaskRevisionIdParamDto,
   type TaskIdParamDto,
   type UpdateTaskDto,
 } from "@/types/task";
@@ -20,14 +18,6 @@ const supervisorRole = "supervisor";
 
 function isSupervisor(req: Pick<Request, "auth">) {
   return req.auth.role === supervisorRole;
-}
-
-function forbidNonSupervisor(res: Response) {
-  return res
-    .status(403)
-    .json(
-      constructError(errorCodes.invalidRole, "Only supervisors can perform this action."),
-    );
 }
 
 function isCompletionPayload(payload: unknown) {
@@ -67,7 +57,8 @@ async function getPendingTaskRevisionConflicts(taskId: number) {
     ),
     hasPendingCompletion: pendingRevisions.some(
       (revision) =>
-        revision.action === "update" && isCompletionPayload(revision.payload),
+        revision.action === "complete" ||
+        (revision.action === "update" && isCompletionPayload(revision.payload)),
     ),
   };
 }
@@ -223,6 +214,9 @@ export async function updateTask(
   }
 
   if (!isSupervisor(req)) {
+    const revisionAction =
+      taskUpdates.status === "completed" ? "complete" : "update";
+
     if (taskUpdates.status === "completed") {
       const { hasPendingCompletion } = await getPendingTaskRevisionConflicts(
         params.id,
@@ -244,7 +238,7 @@ export async function updateTask(
         taskId: params.id,
         departmentId: req.auth.departmentId,
         payload: taskUpdates,
-        action: "update",
+        action: revisionAction,
         requestedBy: req.auth.id,
       })
       .returning({
@@ -354,197 +348,3 @@ export async function deleteTask(req: Request<TaskIdParamDto>, res: Response) {
   return res.status(204).send();
 }
 
-export async function getPendingTaskRevisions(req: Request, res: Response) {
-  if (!isSupervisor(req)) {
-    return forbidNonSupervisor(res);
-  }
-
-  const revisions = await db
-    .select({
-      id: tasksRevisionTable.id,
-      taskId: tasksRevisionTable.taskId,
-      payload: tasksRevisionTable.payload,
-      action: tasksRevisionTable.action,
-      requestedBy: tasksRevisionTable.requestedBy,
-      status: tasksRevisionTable.status,
-      createdAt: tasksRevisionTable.createdAt,
-    })
-    .from(tasksRevisionTable)
-    .where(
-      and(
-        eq(tasksRevisionTable.departmentId, req.auth.departmentId),
-        eq(tasksRevisionTable.status, "pending"),
-      ),
-    )
-    .orderBy(desc(tasksRevisionTable.createdAt), desc(tasksRevisionTable.id));
-
-  return res.json(revisions);
-}
-
-export async function approveTaskRevision(
-  req: Request<TaskRevisionIdParamDto>,
-  res: Response,
-) {
-  if (!isSupervisor(req)) {
-    return forbidNonSupervisor(res);
-  }
-
-  const params = req.params;
-  taskRevisionIdParamDto.parse(params);
-
-  const [revision] = await db
-    .select({
-      id: tasksRevisionTable.id,
-      taskId: tasksRevisionTable.taskId,
-      departmentId: tasksRevisionTable.departmentId,
-      payload: tasksRevisionTable.payload,
-      action: tasksRevisionTable.action,
-      requestedBy: tasksRevisionTable.requestedBy,
-      status: tasksRevisionTable.status,
-    })
-    .from(tasksRevisionTable)
-    .where(
-      and(
-        eq(tasksRevisionTable.id, params.id),
-        eq(tasksRevisionTable.departmentId, req.auth.departmentId),
-        eq(tasksRevisionTable.status, "pending"),
-      ),
-    );
-
-  if (!revision) {
-    return res
-      .status(404)
-      .json(
-        constructError(errorCodes.taskNotFound, "Pending revision request not found."),
-      );
-  }
-
-  if (
-    (revision.action === "update" || revision.action === "delete") &&
-    revision.taskId
-  ) {
-    const [existingTask] = await db
-      .select({ id: tasksTable.id })
-      .from(tasksTable)
-      .where(
-        and(
-          eq(tasksTable.id, revision.taskId),
-          eq(tasksTable.department, revision.departmentId),
-        ),
-      );
-
-    if (!existingTask) {
-      if (revision.action === "update") {
-        await db
-          .delete(tasksRevisionTable)
-          .where(eq(tasksRevisionTable.id, revision.id));
-
-        return res.status(404).json(
-          constructError(
-            errorCodes.taskNotFound,
-            "Task not found. Stale update request was removed.",
-          ),
-        );
-      }
-
-      return res
-        .status(404)
-        .json(constructError(errorCodes.taskNotFound, "Task not found."));
-    }
-  }
-
-  let task: { id: number } | undefined;
-
-  await db.transaction(async (tx) => {
-    if (revision.action === "create") {
-      const payload = createTaskDto.parse(revision.payload);
-
-      [task] = await tx
-        .insert(tasksTable)
-        .values({
-          ...payload,
-          department: revision.departmentId,
-          createdBy: revision.requestedBy,
-        })
-        .returning({ id: tasksTable.id });
-    }
-
-    if (revision.action === "update") {
-      const payload = updateTaskDto.parse(revision.payload);
-
-      [task] = await tx
-        .update(tasksTable)
-        .set({
-          ...payload,
-          updatedAt: new Date(),
-        })
-        .where(
-          and(
-            eq(tasksTable.id, revision.taskId!),
-            eq(tasksTable.department, revision.departmentId),
-          ),
-        )
-        .returning({ id: tasksTable.id });
-    }
-
-    if (revision.action === "delete") {
-      [task] = await tx
-        .delete(tasksTable)
-        .where(
-          and(
-            eq(tasksTable.id, revision.taskId!),
-            eq(tasksTable.department, revision.departmentId),
-          ),
-        )
-        .returning({ id: tasksTable.id });
-    }
-
-    await tx
-      .update(tasksRevisionTable)
-      .set({
-        status: "approved",
-      })
-      .where(eq(tasksRevisionTable.id, revision.id));
-  });
-
-  return res.json({
-    id: revision.id,
-    status: "approved",
-    action: revision.action,
-    taskId: task?.id ?? revision.taskId,
-  });
-}
-
-export async function rejectTaskRevision(
-  req: Request<TaskRevisionIdParamDto>,
-  res: Response,
-) {
-  if (!isSupervisor(req)) {
-    return forbidNonSupervisor(res);
-  }
-
-  const params = req.params;
-  taskRevisionIdParamDto.parse(params);
-
-  const [revision] = await db
-    .update(tasksRevisionTable)
-    .set({ status: "rejected" })
-    .where(
-      and(
-        eq(tasksRevisionTable.id, params.id),
-        eq(tasksRevisionTable.departmentId, req.auth.departmentId),
-        eq(tasksRevisionTable.status, "pending"),
-      ),
-    )
-    .returning({ id: tasksRevisionTable.id, status: tasksRevisionTable.status });
-
-  if (!revision) {
-    return res
-      .status(404)
-      .json(
-        constructError(errorCodes.taskNotFound, "Pending revision request not found."),
-      );
-  }
-
-  return res.json(revision);
-}

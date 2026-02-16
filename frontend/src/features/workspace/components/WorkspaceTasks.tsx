@@ -29,7 +29,7 @@ export function WorkspaceTasks() {
 
   return (
     <>
-      <h1 className="flex items-center gap-2 text-3xl font-bold">
+      <h1 className="flex items-center gap-2 text-2xl font-bold">
         <p>Tasks </p>
         <NewTaskDialog />
       </h1>

@@ -3,16 +3,19 @@ import type { AxiosResponse } from "axios";
 import type {
   CreateTaskDto,
   Task,
+  TaskMutationResponse,
   TasksResponse,
   TaskQueryParams,
   UpdateTaskDto,
+  TaskRevisionsResponse,
 } from "@/features/tasks/types";
 
 export async function createTask(data: CreateTaskDto) {
-  const response = await client.post<Task, AxiosResponse<Task>, CreateTaskDto>(
-    "/tasks",
-    data,
-  );
+  const response = await client.post<
+    TaskMutationResponse,
+    AxiosResponse<TaskMutationResponse>,
+    CreateTaskDto
+  >("/tasks", data);
   return response.data;
 }
 
@@ -21,8 +24,8 @@ export async function updateTask(
   data: Partial<UpdateTaskDto>,
 ) {
   const response = await client.put<
-    Task,
-    AxiosResponse<Task>,
+    TaskMutationResponse,
+    AxiosResponse<TaskMutationResponse>,
     Partial<UpdateTaskDto>
   >(`/tasks/${taskId}`, data);
   return response.data;
@@ -44,9 +47,16 @@ export async function toggleTaskCompletion(task: Task) {
   const newStatus = task.status === "completed" ? "pending" : "completed";
 
   const response = await client.put<
-    Task,
-    AxiosResponse<Task>,
+    TaskMutationResponse,
+    AxiosResponse<TaskMutationResponse>,
     Partial<UpdateTaskDto>
   >(`/tasks/${task.id}`, { status: newStatus });
+  return response.data;
+}
+
+export async function getTaskRevisions(filters: TaskQueryParams) {
+  const response = await client.get<TaskRevisionsResponse>("/tasks/revisions", {
+    params: filters,
+  });
   return response.data;
 }

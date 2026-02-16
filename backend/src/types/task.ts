@@ -44,6 +44,17 @@ const queryValueToOptionalString = (value: unknown) => {
 
 export const taskStatusSchema = z.enum(["pending", "inProgress", "completed"]);
 export const taskPrioritySchema = z.enum(["low", "medium", "high"]);
+export const taskRevisionActionSchema = z.enum([
+  "create",
+  "update",
+  "delete",
+  "complete",
+]);
+export const taskRevisionStatusSchema = z.enum([
+  "pending",
+  "approved",
+  "rejected",
+]);
 
 export const createTaskDto = z.object({
   title: z.string().trim().min(1, { error: "Title is required." }),
@@ -81,6 +92,23 @@ export const getTasksQueryDto = z.object({
     .optional(),
 });
 
+export const getTaskRevisionsQueryDto = z.object({
+  page: z.preprocess(queryValueToNumber, z.int().min(1).default(1)),
+  pageSize: z.preprocess(
+    queryValueToNumber,
+    z.int().min(1).max(100).default(10),
+  ),
+  action: z
+    .preprocess(queryValueToString, taskRevisionActionSchema)
+    .optional(),
+  status: z
+    .preprocess(queryValueToString, taskRevisionStatusSchema)
+    .optional(),
+  sortOrder: z
+    .preprocess(queryValueToString, z.enum(["asc", "desc"]))
+    .optional(),
+});
+
 export const taskIdParamDto = z.object({
   id: z.coerce.number().int().min(1),
 });
@@ -92,5 +120,6 @@ export const taskRevisionIdParamDto = z.object({
 export type CreateTaskDto = z.infer<typeof createTaskDto>;
 export type UpdateTaskDto = z.infer<typeof updateTaskDto>;
 export type GetTasksQueryDto = z.infer<typeof getTasksQueryDto>;
+export type GetTaskRevisionsQueryDto = z.infer<typeof getTaskRevisionsQueryDto>;
 export type TaskIdParamDto = z.infer<typeof taskIdParamDto>;
 export type TaskRevisionIdParamDto = z.infer<typeof taskRevisionIdParamDto>;

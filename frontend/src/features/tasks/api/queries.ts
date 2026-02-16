@@ -1,5 +1,5 @@
 import { queryOptions, keepPreviousData } from "@tanstack/react-query";
-import { getTasks } from "@/features/tasks/api/requests";
+import { getTasks, getTaskRevisions } from "@/features/tasks/api/requests";
 import type { TaskQueryParams } from "@/features/tasks/types";
 
 export const taskQueries = {
@@ -9,6 +9,16 @@ export const taskQueries = {
     queryOptions({
       queryKey: [...taskQueries.lists(), filters],
       queryFn: () => getTasks(filters),
+      placeholderData: keepPreviousData,
+    }),
+};
+
+export const taskRevisionsQueries = {
+  all: () => ["taskRevisions"],
+  list: (filters: TaskQueryParams) =>
+    queryOptions({
+      queryKey: [...taskRevisionsQueries.all(), filters],
+      queryFn: () => getTaskRevisions(filters),
       placeholderData: keepPreviousData,
     }),
 };

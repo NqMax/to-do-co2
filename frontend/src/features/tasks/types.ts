@@ -37,6 +37,16 @@ export type Task = {
   updatedAt: string;
 };
 
+export type TaskRevision = {
+  id: number;
+  taskId: number | null;
+  payload: Partial<Task>;
+  action: "delete" | "create" | "update" | "complete";
+  requestedBy: number;
+  status: "pending" | "approved" | "rejected";
+  createdAt: string;
+};
+
 export type Pagination = {
   page: number;
   pageSize: number;
@@ -62,3 +72,26 @@ export type TasksResponse = {
   data: Task[];
   meta: Metadata["meta"];
 };
+
+export type TaskRevisionsResponse = {
+  data: TaskRevision[];
+  meta: Metadata["meta"];
+};
+
+export type TaskRevisionAction = "delete" | "create" | "update" | "complete";
+export type TaskRevisionStatus = "pending" | "approved" | "rejected";
+export type TaskRevisionResponse = {
+  id: number;
+  action: TaskRevisionAction;
+  status: TaskRevisionStatus;
+  taskId: number | null;
+  createdAt: string;
+};
+
+export type TaskMutationResponse = Task | TaskRevisionResponse;
+
+export function isTaskRevisionResponse(
+  value: TaskMutationResponse,
+): value is TaskRevisionResponse {
+  return "action" in value && "taskId" in value && "status" in value;
+}

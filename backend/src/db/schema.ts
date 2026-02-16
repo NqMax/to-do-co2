@@ -47,6 +47,7 @@ export const actionEnum = pgEnum("revisionAction", [
   "create",
   "update",
   "delete",
+  "complete",
 ]);
 export const revisionStatusEnum = pgEnum("revisionStatus", [
   "pending",

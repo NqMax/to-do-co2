@@ -85,7 +85,12 @@ export const taskIdParamDto = z.object({
   id: z.coerce.number().int().min(1),
 });
 
+export const taskRevisionIdParamDto = z.object({
+  id: z.coerce.number().int().min(1),
+});
+
 export type CreateTaskDto = z.infer<typeof createTaskDto>;
 export type UpdateTaskDto = z.infer<typeof updateTaskDto>;
 export type GetTasksQueryDto = z.infer<typeof getTasksQueryDto>;
 export type TaskIdParamDto = z.infer<typeof taskIdParamDto>;
+export type TaskRevisionIdParamDto = z.infer<typeof taskRevisionIdParamDto>;

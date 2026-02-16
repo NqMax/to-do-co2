@@ -34,7 +34,7 @@ export function createUser(
       }
 
       const [roleRow] = await db
-        .select({ id: rolesTable.id })
+        .select({ id: rolesTable.id, name: rolesTable.name })
         .from(rolesTable)
         .where(eq(rolesTable.name, user.role));
 
@@ -65,7 +65,7 @@ export function createUser(
         id: userResult.id,
         department: departmentRow.name,
         departmentId: userResult.department,
-        role: userResult.role,
+        role: roleRow.name,
       });
 
       return res.status(201).json(userResult);

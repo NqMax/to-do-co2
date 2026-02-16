@@ -28,7 +28,7 @@ export function WorkspaceTasks() {
   }
 
   return (
-    <main className="flex h-[calc(100vh-3.75rem)] flex-col gap-5 p-4">
+    <>
       <h1 className="flex items-center gap-2 text-3xl font-bold">
         <p>Tasks </p>
         <NewTaskDialog />
@@ -42,6 +42,6 @@ export function WorkspaceTasks() {
         ))}
       </ul>
       <ResourcePagination pagination={result.data.meta.pagination} />
-    </main>
+    </>
   );
 }

@@ -1,12 +1,30 @@
+import { NavLink } from "react-router";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
+  SidebarGroupLabel,
   SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
 } from "@/components/ui/sidebar";
 import Logo from "@/assets/logo.svg";
 import { Link } from "react-router";
+import { ClipboardListIcon, FileStackIcon } from "lucide-react";
+
+const sidebarItems = [
+  {
+    title: "Tasks",
+    icon: ClipboardListIcon,
+    href: "/",
+  },
+  {
+    title: "Revisions",
+    icon: FileStackIcon,
+    href: "/revisions",
+  },
+];
 
 export function WorkspaceSidebar() {
   return (
@@ -19,7 +37,19 @@ export function WorkspaceSidebar() {
         </Link>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup />
+        <SidebarGroup>
+          <SidebarGroupLabel>Platform</SidebarGroupLabel>
+          <SidebarMenu>
+            {sidebarItems.map((item) => (
+              <SidebarMenuButton asChild tooltip={item.title}>
+                <NavLink to={item.href} className="[&.active]:font-bold">
+                  {item.icon && <item.icon />}
+                  <span>{item.title}</span>
+                </NavLink>
+              </SidebarMenuButton>
+            ))}
+          </SidebarMenu>
+        </SidebarGroup>
         <SidebarGroup />
       </SidebarContent>
       <SidebarFooter />

@@ -3,6 +3,8 @@ export const errorCodes = {
   invalidCredentials: "INVALID_CREDENTIALS",
   invalidDepartment: "INVALID_DEPARTMENT",
   invalidRole: "INVALID_ROLE",
+  invalidInput: "INVALID_INPUT",
+  taskNotFound: "TASK_NOT_FOUND",
   internalServerError: "INTERNAL_SERVER_ERROR",
 } as const;
 
@@ -15,4 +17,8 @@ export function constructError(code: ErrorCode, message: string) {
       message,
     },
   };
+}
+
+export function toValidationError(message: string) {
+  return constructError(errorCodes.invalidInput, message);
 }

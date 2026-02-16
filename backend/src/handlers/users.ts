@@ -21,7 +21,7 @@ export function createUser(
 
     try {
       const [departmentRow] = await db
-        .select({ id: departmentsTable.id })
+        .select({ id: departmentsTable.id, name: departmentsTable.name })
         .from(departmentsTable)
         .where(eq(departmentsTable.name, user.department));
 
@@ -63,7 +63,8 @@ export function createUser(
 
       await createSession(res, {
         id: userResult.id,
-        department: userResult.department,
+        department: departmentRow.name,
+        departmentId: userResult.department,
         role: userResult.role,
       });
 

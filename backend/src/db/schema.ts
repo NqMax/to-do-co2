@@ -32,8 +32,13 @@ export const tasksTable = pgTable("tasks", {
   title: varchar().notNull(),
   description: varchar().notNull(),
   status: statusEnum().notNull().default("pending"),
+  department: integer()
+    .notNull()
+    .references(() => departmentsTable.id),
   priority: priorityEnum().notNull(),
-  createdBy: integer().notNull().references(() => usersTable.id),
+  createdBy: integer()
+    .notNull()
+    .references(() => usersTable.id),
   createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
 });

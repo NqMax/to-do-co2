@@ -1,4 +1,5 @@
 import * as z from "zod";
+import { departmentEnum } from "@/db/schema";
 
 export const loginDto = z.object({
   email: z.email({ error: "Email must be valid." }).trim(),
@@ -8,6 +9,7 @@ export type LoginDto = z.infer<typeof loginDto>;
 
 export type JwtPayload = {
   id: number;
-  department: string;
+  department: (typeof departmentEnum.enumValues)[number];
+  departmentId: number;
   role: string;
 };

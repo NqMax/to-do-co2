@@ -1,7 +1,7 @@
 import { and, asc, desc, eq, ilike, or, count, type SQL } from "drizzle-orm";
 import type { Request, Response } from "express";
 import { db } from "@/db/db";
-import { tasksTable } from "@/db/schema";
+import { departmentsTable, tasksTable } from "@/db/schema";
 import { constructError, errorCodes } from "@/lib/errors";
 import {
   createTaskDto,
@@ -60,12 +60,14 @@ export async function getTasks(
       title: tasksTable.title,
       description: tasksTable.description,
       status: tasksTable.status,
+      department: departmentsTable.name,
       priority: tasksTable.priority,
       createdBy: tasksTable.createdBy,
       createdAt: tasksTable.createdAt,
       updatedAt: tasksTable.updatedAt,
     })
     .from(tasksTable)
+    .innerJoin(departmentsTable, eq(tasksTable.department, departmentsTable.id))
     .where(whereClause)
     .orderBy(primaryOrder, desc(tasksTable.id))
     .limit(pageSize)
@@ -106,6 +108,7 @@ export async function createTask(
     .insert(tasksTable)
     .values({
       ...task,
+      department: req.auth.departmentId,
       createdBy: req.auth.id,
     })
     .returning({
@@ -132,7 +135,7 @@ export async function updateTask(
   const taskUpdates = req.body;
   updateTaskDto.parse(taskUpdates);
 
-  const [task] = await db
+  const [updatedTask] = await db
     .update(tasksTable)
     .set({
       ...taskUpdates,
@@ -141,20 +144,29 @@ export async function updateTask(
     .where(eq(tasksTable.id, params.id))
     .returning({
       id: tasksTable.id,
-      title: tasksTable.title,
-      description: tasksTable.description,
-      status: tasksTable.status,
-      priority: tasksTable.priority,
-      createdBy: tasksTable.createdBy,
-      createdAt: tasksTable.createdAt,
-      updatedAt: tasksTable.updatedAt,
     });
 
-  if (!task) {
+  if (!updatedTask) {
     return res
       .status(404)
       .json(constructError(errorCodes.taskNotFound, "Task not found."));
   }
+
+  const [task] = await db
+    .select({
+      id: tasksTable.id,
+      title: tasksTable.title,
+      description: tasksTable.description,
+      status: tasksTable.status,
+      priority: tasksTable.priority,
+      department: departmentsTable.name,
+      createdBy: tasksTable.createdBy,
+      createdAt: tasksTable.createdAt,
+      updatedAt: tasksTable.updatedAt,
+    })
+    .from(tasksTable)
+    .innerJoin(departmentsTable, eq(tasksTable.department, departmentsTable.id))
+    .where(eq(tasksTable.id, updatedTask.id));
 
   return res.json(task);
 }

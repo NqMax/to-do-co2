@@ -43,6 +43,7 @@ export async function validateUser(
       id: usersTable.id,
       email: usersTable.email,
       department: departmentsTable.name,
+      departmentId: departmentsTable.id,
       role: rolesTable.name,
       salt: usersTable.salt,
       password: usersTable.password,
@@ -82,6 +83,7 @@ export async function validateUser(
 
       await createSession(res, {
         id: userResult.id,
+        departmentId: userResult.departmentId,
         department: userResult.department,
         role: userResult.role,
       });

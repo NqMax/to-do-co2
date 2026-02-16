@@ -6,7 +6,7 @@ export const statusLabels = {
 
 export const priorityLabels = {
   low: "Low",
-  medium: "Medium",
+  medium: "Mid",
   high: "High",
 } as const;
 

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useForm, Controller, type SubmitHandler } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,8 +14,16 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 
 export function LoginForm() {
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
   const loginMutation = useLogin();
   const navigate = useNavigate();
 
@@ -58,13 +67,23 @@ export function LoginForm() {
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel htmlFor="form-password">Password</FieldLabel>
-              <Input
-                {...field}
-                id="form-password"
-                type="password"
-                aria-invalid={fieldState.invalid}
-                placeholder="••••••••"
-              />
+              <InputGroup>
+                <InputGroupInput
+                  {...field}
+                  id="form-password"
+                  type={isPasswordVisible ? "text" : "password"}
+                  aria-invalid={fieldState.invalid}
+                  placeholder="••••••••"
+                  className="rounded-md"
+                />
+                <InputGroupAddon
+                  className="cursor-pointer"
+                  align="inline-end"
+                  onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+                >
+                  {isPasswordVisible ? <EyeIcon /> : <EyeOffIcon />}
+                </InputGroupAddon>
+              </InputGroup>
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}

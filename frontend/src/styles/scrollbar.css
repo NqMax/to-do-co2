@@ -1,0 +1,37 @@
+:root {
+  --sb-size: 10px;
+  --sb-track: transparent;
+  --sb-thumb: color-mix(in srgb, currentColor 24%, transparent);
+  --sb-thumb-hover: color-mix(in srgb, currentColor 38%, transparent);
+}
+
+/* Firefox */
+* {
+  /* scrollbar-width: thin; */
+  scrollbar-color: var(--sb-thumb) var(--sb-track);
+}
+
+/* Chrome, Edge, Safari */
+*::-webkit-scrollbar {
+  width: var(--sb-size);
+  height: var(--sb-size);
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--sb-track);
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--sb-thumb);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--sb-thumb-hover);
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
